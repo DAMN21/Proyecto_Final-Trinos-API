@@ -1,9 +1,12 @@
 const request = require('supertest');
+
 const app = require('../app');
 
-describe('GET /index', () => {
-  it('Should response hello world-index', async () => {
+describe('Index routes', () => {
+  it('Should return not found', async () => {
     const response = await request(app).get('/');
-    expect(response.body.data).toBe('Hello World-index');
+
+    expect(response.statusCode).toBe(404);
+    expect(response.body.status).toBe('Not found');
   });
 });
