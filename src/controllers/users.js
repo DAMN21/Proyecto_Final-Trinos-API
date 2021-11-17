@@ -1,7 +1,24 @@
 const ApiError = require('../utils/ApiError');
 
-const User = require('../models/user');
+const { User } = require('../database/models');
+const { generateAccessToken } = require('../services/jwt');
+const { verifyAccessToken } = require('../services/jwt');
 const UserSerializer = require('../serializers/UserSerializer');
+const AuthSerializer = require('../serializers/AuthSerializer');
+const UsersSerializer = require('../serializers/UsersSerializer');
+
+const { ROLES } = require('../config/constants');
+
+const findUser = async (where) => {
+  Object.assign(where, { active: true });
+
+  const user = await User.findOne({ where });
+  if (!user) {
+    throw new ApiError('User not found', 400);
+  }
+
+  return user;
+};
 
 const createUser = async (req, res, next) => {
   try {
@@ -33,7 +50,6 @@ const createUser = async (req, res, next) => {
       password: body.password,
     });
 
-    user.active = undefined;
     res.json(new UserSerializer(user));
   } catch (err) {
     next(err);
@@ -45,9 +61,10 @@ const updateUser = async (req, res, next) => {
   let myErrorCode = '';
 
   try {
-    const { body } = req;
-    const { params } = req;
-    const user = await User.findOne({ where: { id: params.id } });
+    const { params, body } = req;
+    const userId = Number(params.id);
+
+    const user = await findUser({ id: userId });
 
     const keysFieldsUser = ['name', 'username', 'email'];
     const keysFieldsBody = Object.keys(body);
@@ -68,8 +85,11 @@ const updateUser = async (req, res, next) => {
       throw new ApiError(myError, myErrorCode);
     }
 
-    const userUpdated = await User.update({ where: { id: params.id } }, body);
-    res.json(new UserSerializer(userUpdated));
+    Object.assign(user, body);
+
+    await user.save();
+
+    res.json(new UserSerializer(user));
   } catch (err) {
     next(err);
   }
@@ -81,7 +101,8 @@ const deactivateUser = async (req, res, next) => {
 
   try {
     const { params } = req;
-    const user = await User.findOne({ where: { id: params.id } });
+    const userId = Number(params.id);
+    const user = await findUser({ id: userId });
 
     if (!user || user.active === false) {
       myError = 'User not found';
@@ -89,9 +110,11 @@ const deactivateUser = async (req, res, next) => {
       throw new ApiError(myError, myErrorCode);
     }
 
-    user.active = true;
-    User.update({ where: { id: params.id } }, user);
-    res.json({ status: 'success', data: null });
+    Object.assign(user, { active: false });
+
+    await user.save();
+
+    res.json(new UserSerializer(null));
   } catch (err) {
     next(err);
   }
@@ -103,7 +126,7 @@ const getUserById = async (req, res, next) => {
     let myError = '';
     let myErrorCode = '';
 
-    const user = await User.findOne({ where: { id: params.id } });
+    const user = await findUser({ id: params.id });
 
     if (!user || user.active === false) {
       myError = 'User not found';
@@ -114,9 +137,39 @@ const getUserById = async (req, res, next) => {
       throw new ApiError(myError, myErrorCode);
     }
 
-    user.active = undefined;
-
     res.json(new UserSerializer(user));
+  } catch (err) {
+    next(err);
+  }
+};
+
+const loginUser = async (req, res, next) => {
+  try {
+    const { body } = req;
+    const { params } = req;
+    const userId = Number(params.id);
+
+    const user = await findUser({ username: body.username });
+
+    if (!(await user.comparePassword(body.password))) {
+      throw new ApiError('User not found', 400);
+    }
+
+    const accessToken = generateAccessToken(userId, user.role);
+
+    res.json(new AuthSerializer(accessToken));
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getAllUsers = async (req, res, next) => {
+  try {
+    req.isRole(ROLES.admin);
+
+    const users = await User.findAll({ ...req.pagination });
+
+    res.json(new UsersSerializer(users, await req.getPaginationInfo(User)));
   } catch (err) {
     next(err);
   }
@@ -127,4 +180,6 @@ module.exports = {
   getUserById,
   updateUser,
   deactivateUser,
+  loginUser,
+  getAllUsers,
 };
