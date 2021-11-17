@@ -63,6 +63,7 @@ const updateUser = async (req, res, next) => {
   try {
     const { params, body } = req;
     const userId = Number(params.id);
+    req.isUserAuthorized(userId);
 
     const user = await findUser({ id: userId });
 
@@ -102,6 +103,7 @@ const deactivateUser = async (req, res, next) => {
   try {
     const { params } = req;
     const userId = Number(params.id);
+    req.isUserAuthorized(userId);
     const user = await findUser({ id: userId });
 
     if (!user || user.active === false) {
