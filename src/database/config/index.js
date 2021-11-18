@@ -5,6 +5,9 @@ module.exports = {
   },
   test: {
     dialect: 'sqlite',
-    logging: false,
+  },
+  production: {
+    dialect: 'postgres',
+    use_env_variable: 'DATABASE_URL',
   },
 };
