@@ -4,7 +4,7 @@ const { JWT_SECRET } = require('../config');
 
 /**
  *
- * @param {Number} id Userid
+ * @param {Number} id user.id
  * @param {String} role user.role
  * @returns {String}
  */
