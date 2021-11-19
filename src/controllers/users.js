@@ -1,8 +1,8 @@
 const ApiError = require('../utils/ApiError');
 
 const { User } = require('../database/models');
-const { generateAccessToken } = require('../services/jwt');
-const { verifyAccessToken } = require('../services/jwt');
+const { generateAccessToken, verifyAccessToken } = require('../services/jwt');
+// const { verifyAccessToken } = require('../services/jwt');
 const UserSerializer = require('../serializers/UserSerializer');
 const AuthSerializer = require('../serializers/AuthSerializer');
 const UsersSerializer = require('../serializers/UsersSerializer');
