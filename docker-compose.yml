@@ -13,7 +13,7 @@ services:
       DATABASE_URL: postgres://trinos_user:root_12345@db:5432/trinos
       JWT_SECRET: 50a84222af70aae1685c81d54759e3f13dc5d10cc1b265a42e7ebc70ad7dc337
     ports:
-      - 4000:3000
+      - 3000:3000
     depends_on:
       - db
   db:
