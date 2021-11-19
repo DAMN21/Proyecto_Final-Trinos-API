@@ -7,7 +7,6 @@ module.exports = {
       type: Sequelize.ENUM(...Object.values(ROLES)),
     });
   },
-
   down: async (queryInterface, Sequelize) => {
     await queryInterface.removeColumn('Users', 'role');
     await queryInterface.sequelize.query('DROP TYPE "enum_Users_role";');
