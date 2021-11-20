@@ -183,6 +183,36 @@ describe('Users routes', () => {
     expect(response.body.status).toBe('Payload can only contain username, email or name');
   });
 
+  it('Should update password user', async () => {
+    const payload = {
+      password: '12345',
+      passwordConfirmation: '12345',
+    };
+
+    const payload2 = {
+      username: 'new_username',
+      email: 'new_email@test.com',
+      name: 'New name',
+    };
+
+    const response = await request(app).post(`${USERS_PATH}/update_password`).send(payload).set('Authorization', `bearer ${firstUserAccessToken}`);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.status).toBe('success');
+
+    expect(response.body.data.name).toBe(payload2.name);
+    expect(response.body.data.username).toBe(payload2.username);
+    expect(response.body.data.email).toBe(payload2.email);
+    expect(response.body.data.createdAt).not.toBeNull();
+    expect(response.body.data.updatedAt).not.toBeNull();
+    expect(response.body.data.lastLoginDate).toBeNull();
+
+    expect(response.body.data.password).toBeUndefined();
+    expect(response.body.data.active).toBeUndefined();
+
+    expect(response.body.paginationInfo).toBeNull();
+  });
+
   it('Should deactivate user', async () => {
     const USER_ID = 1;
     const response = await request(app)
