@@ -16,6 +16,8 @@ router.post('/login', UsersController.loginUser);
 
 router.put('/:id', authMiddleware, UsersController.updateUser);
 
+router.post('/update_password', authMiddleware, UsersController.updatePassword);
+
 router.delete('/:id', authMiddleware, UsersController.deactivateUser);
 
 router.get('/all', authMiddleware, UsersController.getAllUsers);
