@@ -1,4 +1,4 @@
-const { ROLES } = require('../../config/constants');
+// const { ROLES } = require('../../config/constants');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -27,15 +27,6 @@ module.exports = {
       },
       lastLoginDate: {
         type: Sequelize.DATE,
-      },
-      role: {
-        type: Sequelize.ENUM,
-        values: Object.values(ROLES),
-        defaultValue: ROLES.regular,
-      },
-      token: {
-        type: Sequelize.STRING,
-        allowNull: true,
       },
       active: {
         type: Sequelize.BOOLEAN,
