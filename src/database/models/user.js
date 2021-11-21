@@ -45,11 +45,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: null,
     },
-    token: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
