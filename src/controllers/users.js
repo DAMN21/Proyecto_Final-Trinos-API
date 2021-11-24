@@ -1,11 +1,12 @@
+// const { v4: uuid } = require('uuid');
 const ApiError = require('../utils/ApiError');
-
 const { User } = require('../database/models');
 const { generateAccessToken } = require('../services/jwt');
 
 const UserSerializer = require('../serializers/UserSerializer');
 const AuthSerializer = require('../serializers/AuthSerializer');
 const UsersSerializer = require('../serializers/UsersSerializer');
+// const { transporter } = require('../config/mailer');
 
 const { ROLES } = require('../config/constants');
 
@@ -113,7 +114,7 @@ const updatePassword = async (req, res, next) => {
     }
 
     const userId = Number(req.user.id);
-    // req.isUserAuthorized(userId);
+    req.isUserAuthorized(userId);
 
     const user = await findUser({ id: userId });
 
@@ -156,6 +157,14 @@ const loginUser = async (req, res, next) => {
       throw new ApiError('User not found', 400);
     }
 
+    const userPayload = {
+      lastLoginDate: new Date(),
+    };
+
+    Object.assign(user, userPayload);
+
+    await user.save();
+
     const accessToken = generateAccessToken(user.id, user.role);
 
     res.json(new AuthSerializer(accessToken));
@@ -163,6 +172,42 @@ const loginUser = async (req, res, next) => {
     next(err);
   }
 };
+
+/* const sendEmailPassword = async (req, res, next) => {
+  try {
+    const { body } = req;
+    if (body.username === undefined) {
+      throw new ApiError('Bad request', 400);
+    }
+    const user = await findUser({ username: body.username });
+    const emailUser = user.dataValues.email;
+    console.log(emailUser);
+
+    const Payload = {
+      token: uuid(),
+    };
+
+    Object.assign(user, Payload);
+
+    await user.save();
+
+    const info = await transporter.sendMail({
+      from: '"Forgot password 👻" <dmeza2021@gmail.com>', // sender address
+      to: emailUser, // list of receivers
+      subject: 'Forgot password ✔', // Subject line
+      html: `<b>Hi,</b>
+        <p>Please click on the following link,
+        or paste this into your browser to complete process </p>
+        <br>${Payload.token}</br>
+        <p>Atentamente, <br>
+        Trinos-API</p>`, // html body
+    });
+    console.log(info);
+    res.json(new UserSerializer(null));
+  } catch (err) {
+    next(err);
+  }
+}; */
 
 module.exports = {
   createUser,
@@ -172,4 +217,5 @@ module.exports = {
   deactivateUser,
   loginUser,
   getAllUsers,
+  // sendEmailPassword,
 };
