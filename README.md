@@ -22,8 +22,6 @@ Comments
 ---------
 ![image](https://user-images.githubusercontent.com/88041591/143173485-ea0143fc-480a-46be-a80d-05396bde4f8b.png)
 
-Users
-------
-![image](https://user-images.githubusercontent.com/88041591/143178743-8734b570-c3dd-436e-b7ff-971c3670b02d.png)
+
 
 
