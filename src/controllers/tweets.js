@@ -45,21 +45,19 @@ const createTweet = async (req, res, next) => {
     const tweet = await Tweet.create({
       text: body.text,
       likeCounter: 0,
-      userId: req.user.id,
-      comments: [],
     });
     const user = await findUser(req.user.id);
     const tweetCopy = tweet.dataValues;
     tweetCopy.user = user.dataValues;
     tweetCopy.comments = [];
-    res.json(new TweetSerializer(tweetCopy));
-    /*     res.json({
+
+    res.json({
       status: 'success',
       data: {
         ...tweetCopy,
       },
       paginationInfo: null,
-    }); */
+    });
   } catch (err) {
     next(err);
   }
