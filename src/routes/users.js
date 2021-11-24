@@ -22,4 +22,6 @@ router.delete('/:id', authMiddleware, UsersController.deactivateUser);
 
 router.get('/all', authMiddleware, UsersController.getAllUsers);
 
+// router.post('/send_password_email', UsersController.sendEmailPassword);
+
 module.exports = router;
