@@ -93,34 +93,6 @@ describe('Tweets routes', () => {
     expect(response.body.paginationInfo.currentPage).toBe(1);
   });
 
-  it('Should return tweet not found when trying to get a non-existent id', async () => {
-    const response = await request(app).get(`${TWEETS_PATH}/3`);
-
-    expect(response.statusCode).toBe(404);
-    expect(response.body.status).toBe('Tweet not found');
-
-    expect(response.body.data).toBeNull();
-  });
-
-  it('Should return tweet from the consulted id', async () => {
-    const payload = {
-      text: 'My tweet 1',
-    };
-    const response = await request(app).get(`${TWEETS_PATH}/1`);
-
-    expect(response.statusCode).toBe(200);
-    expect(response.body.status).toBe('success');
-
-    expect(response.body.data.tweetId).not.toBeNull();
-    expect(response.body.data.text).toBe(payload.text);
-    expect(response.body.data.likeCounter).not.toBeNull();
-    expect(response.body.data.userId).toBe(firstUser.id);
-    expect(response.body.data.createdAt).not.toBeNull();
-    expect(response.body.data.updatedAt).not.toBeNull();
-    expect(response.body.data.comments).not.toBeNull();
-
-    expect(response.body.paginationInfo).toBeNull();
-  });
 
   it('Should return Access token required on delete tweet', async () => {
     const response = await request(app).delete(`${TWEETS_PATH}/2`);
@@ -158,42 +130,6 @@ describe('Tweets routes', () => {
     expect(response.body.data).toBeNull();
   });
 
-  it('Should return Tweet not found on like tweet', async () => {
-    const response = await request(app).post(`${TWEETS_PATH}/2/likes`).set('Authorization', `bearer ${firstUserAccessToken}`);
-
-    expect(response.statusCode).toBe(404);
-    expect(response.body.status).toBe('Tweet not found');
-
-    expect(response.body.data).toBeNull();
-  });
-
-  it('Should return Tweet on like tweet', async () => {
-    const payload = {
-      text: 'My tweet 1',
-    };
-    const response = await request(app).post(`${TWEETS_PATH}/1/likes`).set('Authorization', `bearer ${secondUserAccessToken}`);
-
-    expect(response.statusCode).toBe(200);
-    expect(response.body.status).toBe('success');
-
-    expect(response.body.data.id).toBe(1);
-    expect(response.body.data.text).toBe(payload.text);
-    expect(response.body.data.likeCounter).not.toBe(0);
-    expect(response.body.data.user.id).toBe(firstUser.id);
-    expect(response.body.data.user.name).toBe(firstUser.name);
-    expect(response.body.data.user.username).toBe(firstUser.username);
-    expect(response.body.data.user.email).toBe(firstUser.email);
-    expect(response.body.data.user.createdAt).not.toBeNull();
-    expect(response.body.data.user.updatedAt).not.toBeNull();
-    expect(response.body.data.user.lastLoginDate).toBeNull();
-
-    expect(response.body.data.comments).not.toBeNull();
-
-    expect(response.body.data.createdAt).not.toBeNull();
-    expect(response.body.data.updatedAt).not.toBeNull();
-
-    expect(response.body.paginationInfo).toBeNull();
-  });
 
   it('Should return Tweet not found on post comments tweet', async () => {
     const payload = {
@@ -221,7 +157,7 @@ describe('Tweets routes', () => {
 
   it('Should return Bad request on post comments tweet', async () => {
     const payload = {
-      texto: 'My comment #1',
+      texto: 'My comment 1',
     };
     const response = await request(app).post(`${TWEETS_PATH}/1/comments`).send(payload).set('Authorization', `bearer ${secondUserAccessToken}`);
 
@@ -233,7 +169,7 @@ describe('Tweets routes', () => {
 
   it('Should create comment', async () => {
     const payload = {
-      text: 'My comment #1',
+      text: 'My comment ',
     };
     const response = await request(app).post(`${TWEETS_PATH}/1/comments`).send(payload).set('Authorization', `bearer ${secondUserAccessToken}`);
 
@@ -258,27 +194,3 @@ describe('Tweets routes', () => {
 
     expect(response.body.data).toBeNull();
   });
-
-  it('Should return User info on user feed', async () => {
-    const payload = {
-      text: 'My tweet 1',
-    };
-    const response = await request(app).get(`${TWEETS_PATH}/feed/user1`);
-
-    expect(response.statusCode).toBe(200);
-    expect(response.body.status).toBe('success');
-
-    expect(response.body.data[0].tweetId).not.toBeNull();
-    expect(response.body.data[0].text).toBe(payload.text);
-    expect(response.body.data[0].likeCounter).not.toBeNull();
-    expect(response.body.data[0].user.id).toBe(firstUser.id);
-    expect(response.body.data[0].user.name).toBe(firstUser.name);
-    expect(response.body.data[0].user.username).toBe(firstUser.username);
-    expect(response.body.data[0].user.email).toBe(firstUser.email);
-    expect(response.body.data[0].user.createdAt).not.toBeNull();
-    expect(response.body.data[0].user.updatedAt).not.toBeNull();
-    expect(response.body.data[0].user.lastLoginDate).toBeNull();
-
-    expect(response.body.data[0].comments).not.toBeNull();
-  });
-});
