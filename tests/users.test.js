@@ -280,3 +280,33 @@ describe('Users routes', () => {
     expect(response.body.status).toBe('Role not authorized');
   });
 });
+
+it('Should update password user', async () => {
+  const info = {
+    username: 'new_username',
+    email: 'new_email@test.com',
+    name: 'New name',
+  };
+  const payload = {
+    password: '1234567',
+    passwordConfirmation: '1234567',
+  };
+  const response = await request(app).post(`${USERS_PATH}/update_password`)
+    // eslint-disable-next-line no-undef
+    .send(payload).set('Authorization', `bearer ${firstUserAccessToken}`);
+
+  expect(response.statusCode).toBe(200);
+  expect(response.body.status).toBe('success');
+
+  expect(response.body.data.name).toBe(info.name);
+  expect(response.body.data.username).toBe(info.username);
+  expect(response.body.data.email).toBe(info.email);
+  expect(response.body.data.createdAt).not.toBeNull();
+  expect(response.body.data.updatedAt).not.toBeNull();
+  expect(response.body.data.lastLoginDate).toBeNull();
+
+  expect(response.body.data.password).toBeUndefined();
+  expect(response.body.data.active).toBeUndefined();
+
+  expect(response.body.paginationInfo).toBeNull();
+});
