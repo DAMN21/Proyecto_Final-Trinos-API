@@ -46,6 +46,10 @@ const createTweet = async (req, res, next) => {
       text: body.text,
       likeCounter: 0,
     });
+
+    if (Object.values(tweet).some((val) => val === undefined)) {
+      throw new ApiError('Bad request', 400);
+    }
     const user = await findUser(req.user.id);
     const tweetCopy = tweet.dataValues;
     tweetCopy.user = user.dataValues;
@@ -66,8 +70,8 @@ const createTweet = async (req, res, next) => {
 const getTweetById = async (req, res, next) => {
   try {
     const { params } = req;
-    const id = Number(params.id);
-    const tweet = await Tweet.findOne({ where: id });
+    const idTweet = Number(params.id);
+    const tweet = await Tweet.findUser({ id: idTweet });
     if (!tweet) {
       res.json({ status: 'error', data: null });
     } else {
@@ -84,6 +88,9 @@ const deleteTweetById = async (req, res, next) => {
 
     const tweetId = Number(params.id);
     const tweet = await Tweet.findOne({ where: tweetId });
+    if (!tweet) {
+      throw new ApiError('Tweet not found', 404);
+    }
 
     if (tweet && (req.user.id === tweet.userId)) {
       await tweet.destroy({ where: { id: tweetId } });
@@ -100,6 +107,9 @@ const myTweetsFeed = async (req, res, next) => {
   const where = {
     userId: req.user.id,
   };
+  if (!where) {
+    throw new ApiError('not found', 404);
+  }
 
   const myTweets = await Tweet.findAll({
     where,
@@ -140,6 +150,9 @@ const likeTweet = async (req, res, next) => {
     const { params } = req;
     const Idtweet = Number(params.id);
     const tweet2 = await Tweet.findOne({ where: Idtweet });
+    if (!tweet2) {
+      throw new ApiError('User not found', 404);
+    }
     tweet2.likeCounter += 1;
     await tweet2.save();
     const tweet = await Tweet.findOne({
@@ -159,12 +172,16 @@ const createNewComment = async (req, res, next) => {
   try {
     const { body } = req;
 
-    console.log(req);
+    if (body.text === undefined) {
+      throw new ApiError('Bad request', 400);
+    }
+
     const comment = await Comment.create({
       text: body.text,
       likeCounter: 0,
       tweetId: Number(req.params.id),
     });
+
     comment.tweetId = req.params.id;
     res.json(new CommentsSerializer(comment, await req.getPaginationInfo(Comment)));
   } catch (err) {
