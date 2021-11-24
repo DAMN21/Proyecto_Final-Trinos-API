@@ -7,6 +7,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "test": "jest",
+    "linter": "eslint bin/www src/**/*.js app.js",
     "db:seed:all": "cd ./src/database && sequelize db:seed:all",
     "db:seed:undo": "cd ./src/database && sequelize db:seed:undo",
     "db:seed:generate": "cd ./src/database && npx sequelize-cli seed:generate",
